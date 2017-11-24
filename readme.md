@@ -35,4 +35,44 @@ Example:
 
 ## contrastive loss & triplet loss
 
+### contrastive loss
+contrasitve_loss is to randomly choose two sample from training dataset.If they are belong to the same class,let them get closer;otherwise let then get farther.
+
+contastive loss should be used with softmax.
+
+![](./imgs/contrastive_loss.png)
+ 
+
+### triplet loss
+
+triplet loss want to achieve a simple goal:
+
+Dist(a,p)+margin<Dist(a,n)
+
+there are three conditions while reaching this goal:
+
+condition1:Dist(a,p)+margin<Dist(a,n),Loss == 0,nothing need to be change.
+
+![](./imgs/triplet_loss_1.png)
+
+condition2:Dist(a,p)+margin>Dist(a,n),Loss <> 0.a&p should get closer,a&n should get farther.
+
+![](./imgs/triplet_loss_2.png)
+
+condition3:Dist(a,p)>Dist(a,n),Loss == 0 again.triple_loss consider this as a hard sample.
+
+![](./imgs/triplet_loss_3.png)
+
+triplet loss is helpful combine with softmax:
+
+
+
+But if you think deeper,you'll find that triplet_loss is really not a good loss function.2 reasons:
+
+&ensp; 1.Ignore hard sample,which is not friendly to small trainning set.
+
+&ensp; 2.Loss didn't exist in condition1,which is opposed to the log-likelihood,and this point is unbearable to me.
+
+
+
 
