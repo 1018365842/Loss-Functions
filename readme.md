@@ -9,7 +9,7 @@ It's has only been 4 months that I began to learn deep learning and solve the Fa
 
 # before loss function
 
-why classification layer use dot production?
+why classification layer use dot product?
 
 Do linear classification:
 
@@ -51,15 +51,21 @@ Dist(a,p)+margin<Dist(a,n)
 
 there are three conditions while reaching this goal:
 
-condition1:Dist(a,p)+margin<Dist(a,n),Loss == 0,nothing need to be change.
+condition1:
+
+&ensp; Dist(a,p)+margin<Dist(a,n),Loss == 0,nothing need to be change.
 
 ![](./imgs/triplet_loss_1.png)
 
-condition2:Dist(a,p)+margin>Dist(a,n),Loss <> 0.a&p should get closer,a&n should get farther.
+condition2:
+
+&ensp; Dist(a,p)+margin>Dist(a,n),Loss <> 0.a&p should get closer,a&n should get farther.
 
 ![](./imgs/triplet_loss_2.png)
 
-condition3:Dist(a,p)>Dist(a,n),Loss == 0 again.triple_loss consider this as a hard sample.
+condition3:
+
+&ensp; Dist(a,p)>Dist(a,n),Loss == 0 again.triple_loss consider this as a hard sample.
 
 ![](./imgs/triplet_loss_3.png)
 
@@ -73,6 +79,8 @@ But if you think deeper,you'll find that triplet_loss is really not a good loss 
 
 &ensp; 2.Loss didn't exist in condition1,which is opposed to the log-likelihood,and this point is unbearable to me.
 
+# Center Loss
 
 
+# A-softmax Loss
 
