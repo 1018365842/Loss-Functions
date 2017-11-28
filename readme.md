@@ -107,11 +107,15 @@ But if you think deeper,you'll find that triplet_loss is really not a good loss 
 下面介绍一下几种比较有意义的loss function，这几种loss function极大的推动了face recogniton的进程。
 
 ## softmax
-### 优点
+
+**优点**
+
 softmax的话大家应该都比较熟悉，作为分类中一种经典的loss function，从分类的prob以及log-likelihood推导而来，其优美的形式保证了反向求导的导数计算的简洁性以及导数处于[-1,1]这样一个区间。
 
 由于softmax是完全基于data distribution的一种产物，所以在大训练集上表现的尤为出色，应该能说是ImageNet时代应运而生的一个完美产物。
-### 缺点
+
+**缺点**
+
 虽然softmax的形式非常优美，但是应用在face recognition上却存在着极大的问题，因为face recognition并不是一个分类问题，而是一个特征提取问题。在人脸比对上是要求余弦相似度的，于是就可能产生下面的情况：
 
 ![](./imgs/softmax.png)
@@ -127,6 +131,11 @@ softmax的话大家应该都比较熟悉，作为分类中一种经典的loss fu
 一句简单的话表示就是：两个同类样本尽量接近，两个不同类样本尽量远离，各自的权重都是线性的。
 
 ### Triplet loss
+
+给个传送门：
+
+[https://github.com/davidsandberg/facenet](https://github.com/davidsandberg/facenet)
+
 triplet loss是一个很有趣的loss，与contrastive loss相比，不再是简单的接近远离，而是有了一个明确的目标：
 
 anchor与positive之间的距离一定要小于anchor与negative之间的距离，而且不是简单的小于，是加了margin之后的小于。
@@ -155,8 +164,8 @@ condition3:Dist(a,p) > Dist(a,n)
 
 与此同时，作者还进行了一些排序操作来进行困难样本处理，这一点就不细说了，想了解的话可以查看github上已经实现好了的triplet loss代码。
 
-#### 缺点
-虽然triplet loss做了很多的工作，但是我更愿意把它看成是一个超大数据训练集下的无奈之举。
+**缺点**
+虽然triplet loss做了很多的工作，但是我更愿意把它看成是一个**超大数据训练集**下的无奈之举。
 
 正如某人所说的，double（contrastive）不如triple，triple不如分类。
 
@@ -164,5 +173,52 @@ condition3:Dist(a,p) > Dist(a,n)
 
 ## Center loss
 
+照例给个传送门：
+
+[https://github.com/ydwen/caffe-face](https://github.com/ydwen/caffe-face)
+
+Center loss的目的也很简单，就是想让类内的样本尽量往类中心靠。
+
+那类中心在哪呢？作者给出了一种非常奇怪的方法，通过之前训过的同类样本迭代来更新类中心。
+
+其实我们之前就已经讨论过了，分类层的权重W其实就是类中心，这样来看，作者这样一手操作就显得有点滑稽了（
+
+虽然思想简单，但是效果还是不错的，不论是在哪个公开数据集上都能取得相对不错的效果
+
+**缺点**：
+
+没有什么明显的缺点，用的时候权重分配lambda要选择好，不然就会适得其反，影响softmax的分类效果。
+
+另外，加了个center层保存下来的caffemodel大了一倍，对硬盘不友好
+
 ## A-softmax loss
 
+传送门：
+
+[https://github.com/wy1iu/sphereface](https://github.com/wy1iu/sphereface)
+
+目前来说最满意的loss，但还是有几点不满意的，这些之后再说。
+
+sphereface是由angle margin发展过来的，主要目的是角度约束。
+
+首先要弄懂什么是angle，由前面分类层提到的，点乘其实是欧式距离的一种，而不是余弦距离。为了与测试一致，我们首先要把欧式距离换成角度距离，最为简单的方式就是将偏置项b去掉。
+
+y = Wx+b ---> y = Wx
+
+![](./imgs/sphereface1.png)
+
+上图左图是欧式距离，右图则是余弦距离
+
+当然说右边是余弦距离还有点问题，需要保证特征长度固定，这个我们之后再说。
+
+弄懂了angle，然后说下什么是angle margin:
+
+![](./imgs/sphereface2.png)
+
+从上图能够清楚地看清两点：
+
+1.类间是如何收缩的
+
+2.type改变，lambda变小之后trainning accuracy为何会下降。
+
+3.在Quadruple下loss为何会维持一个比较大的值
