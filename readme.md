@@ -138,29 +138,29 @@ softmax的话大家应该都比较熟悉，作为分类中一种经典的loss fu
 
 triplet loss是一个很有趣的loss，与contrastive loss相比，不再是简单的接近远离，而是有了一个明确的目标：
 
-anchor与positive之间的距离一定要小于anchor与negative之间的距离，而且不是简单的小于，是加了margin之后的小于。
+anchor与positive之间的距离一定要小于anchor与negative之间的距离，而且不是简单的小于，**是加了margin之后的小于**。
 
 具体可以分为下面三种情况：
 
-condition1：Dist(a,p) + margin < Dist(a,n)
+**condition1**：Dist(a,p) + margin < Dist(a,n)
 
 ![](./imgs/triplet_loss_1.png)
 
-condition2:Dist(a,p) + margin > Dist(a,n)
+**condition2**:Dist(a,p) + margin > Dist(a,n)
 
 ![](./imgs/triplet_loss_2.png)
 
-condition3:Dist(a,p) > Dist(a,n)
+**condition3**:Dist(a,p) > Dist(a,n)
 
 ![](./imgs/triplet_loss_3.png)
 
 仔细描述一下：
 
-第一种情况已经满足我们的goal了，所以我们不打算做优化
+**第一种**情况已经满足我们的goal了，所以我们不打算做优化
 
-第二种情况是作者想要主要优化的情况，因为还未满足goal
+**第二种**情况是作者想要主要优化的情况，因为还未满足goal
 
-第三种情况是作者想要直接放弃的情况，因为与goal相差太多，直接当做outlier放弃
+**第三种**情况是作者想要直接放弃的情况，因为与goal相差太多，直接当做outlier放弃
 
 与此同时，作者还进行了一些排序操作来进行困难样本处理，这一点就不细说了，想了解的话可以查看github上已经实现好了的triplet loss代码。
 
@@ -179,7 +179,7 @@ condition3:Dist(a,p) > Dist(a,n)
 
 Center loss的目的也很简单，就是想让类内的样本尽量往类中心靠。
 
-那类中心在哪呢？作者给出了一种非常奇怪的方法，通过之前训过的同类样本迭代来更新类中心。
+那类中心在哪呢？作者给出了一种非常奇怪的方法，通过之前训过的同类样本**迭代来更新类中心**。
 
 其实我们之前就已经讨论过了，分类层的权重W其实就是类中心，这样来看，作者这样一手操作就显得有点滑稽了（
 
@@ -199,9 +199,9 @@ Center loss的目的也很简单，就是想让类内的样本尽量往类中心
 
 目前来说最满意的loss，但还是有几点不满意的，这些之后再说。
 
-sphereface是由angle margin发展过来的，主要目的是角度约束。
+**sphereface**是由**angle margin**发展过来的，主要目的是角度约束。
 
-首先要弄懂什么是angle，由前面分类层提到的，点乘其实是欧式距离的一种，而不是余弦距离。为了与测试一致，我们首先要把欧式距离换成角度距离，最为简单的方式就是将偏置项b去掉。
+首先要弄懂什么是**angle**，由前面分类层提到的，点乘其实是欧式距离的一种，而不是余弦距离。为了与测试一致，我们首先要把欧式距离换成角度距离，最为简单的方式就是将偏置项b去掉。
 
 y = Wx+b ---> y = Wx
 
@@ -217,8 +217,14 @@ y = Wx+b ---> y = Wx
 
 从上图能够清楚地看清两点：
 
-1.类间是如何收缩的
+1.**类间**是如何收缩的
 
-2.type改变，lambda变小之后trainning accuracy为何会下降。
+2.type改变，lambda变小之后**trainning accuracy**为何会下降。
 
-3.在Quadruple下loss为何会维持一个比较大的值
+3.在Quadruple下loss为何会维持一个**比较大的值**
+
+**缺点：**
+
+sphereface虽然把之前的欧式距离转换成了角度距离加以约束，但是仍然是基于softmax的一种loss，基于softmax的一种缺点在sphereface是表现的尤为突出，可能很少有人会发现这一个对于softmax来说非常非常致命的缺点，只一点表现在为何**在训练的过程中loss下降但是整个网络的参数却崩溃**的情况。
+
+这个缺点需要阐述的东西比较多，我会在下一个project中详细地说明这个缺点并给出改进的方法。
